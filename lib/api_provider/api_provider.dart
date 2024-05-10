@@ -4,12 +4,17 @@ import 'package:cowlar_design_task/models/get_movie_trailer_model.dart';
 import 'package:cowlar_design_task/models/movie_detail_model.dart';
 import 'package:cowlar_design_task/models/upcoming_movie_model.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../config/const_url.dart';
 
 class ApiProvider {
+  final Dio? dioApi; // Dio instance
+  bool? fromTest;
+  ApiProvider({ this.dioApi, this.fromTest});
   late Response response;
-  String apiKey = "5e0fbb7ee2fae495cf56bc8b78f3cb44";
+  String? apiKey = dotenv.env['API_KEY'];
 
   Future<Response> dioConnect(
     String url,
@@ -18,12 +23,19 @@ class ApiProvider {
     String contentType,
     String apiKey,
   ) async {
-    Dio dio = Dio();
-    print('url : $url');
-    print('postData : ${jsonEncode(data.toString())}');
-    print('apiType : $apiType');
-    print('contentType : $contentType');
-    print('apiKey : $apiKey'); // Print the API key
+    Dio dio = fromTest != null && fromTest == true ? dioApi! :  Dio();
+    if (kDebugMode) {
+    print('url : $url');}
+    if (kDebugMode) {
+    print('postData : ${jsonEncode(data.toString())}');}
+    if (kDebugMode) {
+    print('apiType : $apiType');}
+    if (kDebugMode) {
+      print('contentType : $contentType');
+    }
+    if (kDebugMode) {
+      print('apiKey : $apiKey');
+    } // Print the API key
 
     try {
       dio.options.connectTimeout = const Duration(milliseconds: 15000);
@@ -89,7 +101,7 @@ class ApiProvider {
   Future<UpcomingMovieModel> fetchUpcomingMovie() async {
     try {
       response =
-          await dioConnect(upcomingMovieApi, null, 'get', 'json', apiKey);
+          await dioConnect(upcomingMovieApi, null, 'get', 'json', apiKey!);
 
       print(jsonEncode(response.toString()));
 
@@ -112,7 +124,7 @@ class ApiProvider {
   Future<MovieDetailModel> fetchMovieDetailById(String iD) async {
     try {
       response =
-          await dioConnect(movieDetailApi + iD, null, 'get', 'json', apiKey);
+          await dioConnect(movieDetailApi + iD, null, 'get', 'json', apiKey!);
 
       print(jsonEncode(response.toString()));
 
@@ -138,7 +150,7 @@ class ApiProvider {
           null,
           'get',
           'json',
-          apiKey);
+          apiKey!);
 
       print(jsonEncode(response.toString()));
 

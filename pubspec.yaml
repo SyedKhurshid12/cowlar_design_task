@@ -45,10 +45,18 @@ dependencies:
   intl:
   youtube_player_flutter: ^9.0.1
   provider: ^6.1.1
+  flutter_dotenv: ^5.0.2
+
 
 dev_dependencies:
+  mocktail: ^1.0.1
+  flutter_gen:
+
   flutter_test:
     sdk: flutter
+
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -56,6 +64,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints:
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -70,6 +79,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - .env
     - assets/
 
   #   - images/a_dot_burr.jpeg

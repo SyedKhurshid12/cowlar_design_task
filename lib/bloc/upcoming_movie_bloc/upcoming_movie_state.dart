@@ -1,29 +1,36 @@
 import 'package:cowlar_design_task/models/upcoming_movie_model.dart';
-import 'package:equatable/equatable.dart';
 
-abstract class UpcomingMovieState extends Equatable {
+abstract class UpcomingMovieState {
   const UpcomingMovieState();
 
-  @override
-  List<Object?> get props => [];
+  UpcomingMovieState copyWith({
+    UpcomingMovieModel? newupcomingMovieModel,
+    List<UpcomingMovieModelResults?>? newsearchMovies,
+  }) {
+    return this; // Default implementation, returns the same instance
+  }
 }
-
 class UpcomingMovieInitial extends UpcomingMovieState {}
 
 class UpcomingMovieLoading extends UpcomingMovieState {}
 
 class UpcomingMovieLoaded extends UpcomingMovieState {
-  final UpcomingMovieModel upcomingMovieModel;
-  const UpcomingMovieLoaded({required this.upcomingMovieModel});
+  final UpcomingMovieModel? upcomingMovieModel;
+  final List<UpcomingMovieModelResults?>? searchMovies;
+
+  UpcomingMovieLoaded({this.upcomingMovieModel, this.searchMovies}) : super();
+
+  @override
+  UpcomingMovieLoaded copyWith({
+    UpcomingMovieModel? newupcomingMovieModel,
+    List<UpcomingMovieModelResults?>? newsearchMovies,
+  }) {
+    return UpcomingMovieLoaded(
+      upcomingMovieModel: newupcomingMovieModel ?? upcomingMovieModel,
+      searchMovies: newsearchMovies ?? searchMovies,
+    );
+  }
 
   @override
   List<Object?> get props => [upcomingMovieModel];
-}
-
-class UpcomingMovieError extends UpcomingMovieState {
-  final String message;
-  const UpcomingMovieError({required this.message});
-
-  @override
-  List<Object?> get props => [message];
 }

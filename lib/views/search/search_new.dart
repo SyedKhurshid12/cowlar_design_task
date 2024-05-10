@@ -22,18 +22,14 @@ class SearchNew extends StatefulWidget {
 }
 
 class _SearchNewState extends State<SearchNew> {
-  UpcomingMovieBloc upcomingMovieBloc = UpcomingMovieBloc();
-  UpcomingMovieModel? upcomingMovieModel;
+  late UpcomingMovieBloc upcomingMovieBloc;
   TextEditingController searchController = TextEditingController();
-  List<UpcomingMovieModelResults?>? filter = [];
-
-
+  UpcomingMovieModel? upcomingMovieModel;
 
   @override
   void initState() {
-    // TODO: implement initState
-    upcomingMovieBloc.add(GetUpcomingMovieList());
     super.initState();
+    upcomingMovieBloc = UpcomingMovieBloc()..add(GetUpcomingMovieList());
   }
 
   @override
@@ -46,170 +42,135 @@ class _SearchNewState extends State<SearchNew> {
         showLeadingIcon: false,
       ),
       body: BlocProvider(
-          create: (_) => upcomingMovieBloc,
-          child: BlocListener<UpcomingMovieBloc, UpcomingMovieState>(
-              listener: (context, state) {
-            if (state is UpcomingMovieError) {
-            } else if (state is UpcomingMovieLoaded) {}
-          }, child: BlocBuilder<UpcomingMovieBloc, UpcomingMovieState>(
-            builder: (context, state) {
-              if (state is UpcomingMovieInitial) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    color: whiteColor,
-                  ),
-                );
-              } else if (state is UpcomingMovieLoaded) {
-                upcomingMovieModel = state.upcomingMovieModel;
-
-                return _buildSearchScreen(context, state.upcomingMovieModel);
-              } else {
-                return Container();
-              }
-            },
-          ))),
-    );
-  }
-
-  Widget _buildSearchScreen(BuildContext context, UpcomingMovieModel model) {
-    return SizedBox(
-      height: double.infinity,
-      // Set the height of your outer container as needed
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            addVerticalSpace(
-              20,
-            ),
-            CustomSearchBar(
-              hintText: "Search",
-              controller: searchController,
-              onChanged: (String? value) {
-                final searchText = value?.toLowerCase();
-
-                setState(() {
-                  filter = model.results?.where((movie) =>
-                  movie?.originalTitle?.toLowerCase().contains(searchText!) ?? false
-                  ).toList();
-                });
-              },
-            ),
-            addVerticalSpace(
-              15,
-            ),
-
-            Expanded(
-              child: ListView.builder(
-                itemCount: filter?.length ?? 0,
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-
-
-                itemBuilder: (BuildContext context, int index) {
-                  final imageUrl = filter?[index]?.posterPath ?? "";
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MovieDetailScreen(
-                              imageUrl: "$imageBaseUrl$imageUrl",
-                              movieId:
-                              filter?[index]?.id.toString() ?? "",
-                            ),
-                          ),
-                        );
-                      },
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 140,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              image: DecorationImage(
-                                image: CachedNetworkImageProvider(
-                                    "$imageBaseUrl$imageUrl"),
-                                colorFilter: ColorFilter.mode(
-                                  Colors.black.withOpacity(0.5),
-                                  BlendMode.overlay,
-                                ),
-                                fit: BoxFit.fitWidth,
-                              ),
-                            ),
-                          ),
-                          addHorizontalSpace(20),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 18.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(filter?[index]?.title ?? "unknown",style: createCustomTextStyle(fontSize: 18),
-                                  maxLines: 1,overflow: TextOverflow.ellipsis,),
-                                  addVerticalSpace(10),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.star_border_purple500_outlined,color: orange,),
-                                      addHorizontalSpace(5),
-                                      Text(filter?[index]?.popularity.toString() ?? "1",style: createCustomTextStyle(color: orange),),
-
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.local_attraction,color: lightPrimary,),
-                                      addHorizontalSpace(5),
-                                      Text(
-                                        "Action",
-                                        style: createCustomTextStyle(color: lightPrimary),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.calendar_today,color: lightPrimary,),
-                                      addHorizontalSpace(5),
-                                      Text(
-                                        filter?[index]?.releaseDate.toString().substring(0, 4) ?? "1",
-                                        style: createCustomTextStyle(color: lightPrimary),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.access_alarms,color: lightPrimary,),
-                                      addHorizontalSpace(5),
-                                      Text(
-                                        " ${"130" + " Minutes" ?? "1"}",
-                                        style: createCustomTextStyle(color: lightPrimary),
-                                      ),
-                                    ],
-                                  ),
-
-
-
-
-
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+        create: (_) => upcomingMovieBloc,
+        child: BlocBuilder<UpcomingMovieBloc, UpcomingMovieState>(
+          builder: (context, state) {
+            if (state is UpcomingMovieInitial) {
+              return Center(
+                child: CircularProgressIndicator(
+                  color: whiteColor,
+                ),
+              );
+            } else if (state is UpcomingMovieLoaded) {
+              upcomingMovieModel = state.upcomingMovieModel;
+              return _buildSearchScreen(
+                  context, upcomingMovieModel, state.searchMovies ?? []);
+            } else {
+              return Container();
+            }
+          },
         ),
       ),
     );
+  }
+
+  Widget _buildSearchScreen(BuildContext context, UpcomingMovieModel? model,
+      List<UpcomingMovieModelResults?> searchList) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        addVerticalSpace(20),
+        CustomSearchBar(
+          hintText: "Search",
+          controller: searchController,
+          onChanged: (value) => _onSearchTextChanged(value, model),
+        ),
+        addVerticalSpace(15),
+        Expanded(
+          child: ListView.builder(
+            itemCount: searchList.length,
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemBuilder: (BuildContext context, int index) {
+              final imageUrl = searchList[index]?.posterPath ?? "";
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MovieDetailScreen(
+                          imageUrl: "$imageBaseUrl$imageUrl",
+                          movieId: searchList[index]?.id.toString() ?? "",
+                        ),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 140,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          image: DecorationImage(
+                            image: CachedNetworkImageProvider(
+                                "$imageBaseUrl$imageUrl"),
+                            colorFilter: ColorFilter.mode(
+                                Colors.black.withOpacity(0.5),
+                                BlendMode.overlay),
+                            fit: BoxFit.fitWidth,
+                          ),
+                        ),
+                      ),
+                      addHorizontalSpace(20),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 18.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                searchList[index]?.title ?? "unknown",
+                                style: createCustomTextStyle(fontSize: 18),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              addVerticalSpace(10),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.star_border_purple500_outlined,
+                                    color: orange,
+                                  ),
+                                  addHorizontalSpace(5),
+                                  Text(
+                                    searchList[index]?.popularity.toString() ??
+                                        "1",
+                                    style: createCustomTextStyle(color: orange),
+                                  ),
+                                ],
+                              ),
+                              // Other movie details...
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _onSearchTextChanged(String? value, UpcomingMovieModel? model) {
+    final searchText = value?.trim().toLowerCase();
+    if (searchText != null && searchText.isNotEmpty) {
+      upcomingMovieBloc.add(GetSearchMovie(model!, searchText));
+    } else {
+      upcomingMovieBloc.add(GetUpcomingMovieList());
+    }
+  }
+
+  @override
+  void dispose() {
+    upcomingMovieBloc.close();
+    super.dispose();
   }
 }

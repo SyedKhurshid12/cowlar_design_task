@@ -2,11 +2,13 @@ import 'package:cowlar_design_task/provider/movie_player_provider.dart';
 import 'package:cowlar_design_task/views/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
 import 'config/colors.dart';
 
-void main() {
+void main() async{
+  await dotenv.load(fileName: '.env');
   runApp(const MyApp());
 }
 
